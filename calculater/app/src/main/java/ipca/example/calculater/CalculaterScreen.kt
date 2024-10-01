@@ -10,6 +10,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
 
 @Preview
 @Composable
@@ -32,21 +33,23 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
         Text(
             text = operationDisplay,
             fontSize = 24.sp,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             fontWeight = FontWeight.Light,
-            maxLines = 1,
-            modifier = Modifier.padding(8.dp)
+            maxLines = 1
         )
 
         // Linha inferior: exibe o resultado ou o número digitado
         Text(
             text = display,
             fontSize = 48.sp,
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             fontWeight = FontWeight.Bold,
             maxLines = 1,
-            modifier = Modifier.padding(8.dp),
-            textAlign = Alignment.End
+            textAlign = TextAlign.End
         )
 
         // Espaço para os botões
@@ -185,6 +188,26 @@ fun onNumberClick(number: String, currentDisplay: String, onUpdateDisplay: (Stri
     }
 }
 
+fun onOpenParenthesis(currentDisplay: String, onUpdateDisplay: (String) -> Unit) {
+    onUpdateDisplay(currentDisplay + "(")
+}
+
+fun onCloseParenthesis(currentDisplay: String, onUpdateDisplay: (String) -> Unit) {
+    onUpdateDisplay(currentDisplay + ")")
+}
+
+fun onToggleSign(currentDisplay: String, onUpdateDisplay: (String) -> Unit) {
+    val value = currentDisplay.toDoubleOrNull() ?: 0.0
+    onUpdateDisplay((value * -1).toString())
+}
+
+fun onDecimalClick(currentDisplay: String, onUpdateDisplay: (String) -> Unit) {
+    // Se o número já tiver um ponto decimal, não faz nada
+    if (!currentDisplay.contains(".")) {
+        onUpdateDisplay(currentDisplay + ".")
+    }
+}
+
 fun calculateResult(
     valor1: String,
     valor2: String,
@@ -220,23 +243,4 @@ fun clearCalculator(
 fun onPercentClick(currentDisplay: String, onUpdateDisplay: (String) -> Unit) {
     val value = currentDisplay.toDoubleOrNull() ?: 0.0
     onUpdateDisplay((value / 100).toString())
-}
-
-fun onToggleSign(currentDisplay: String, onUpdateDisplay: (String) -> Unit) {
-    val value = currentDisplay.toDoubleOrNull() ?: 0.0
-    onUpdateDisplay((value * -1).toString())
-}
-
-fun onDecimalClick(currentDisplay: String, onUpdateDisplay: (String) -> Unit) {
-    if (!currentDisplay.contains(".")) {
-        onUpdateDisplay(currentDisplay + ".")
-    }
-}
-
-fun onOpenParenthesis(currentDisplay: String, onUpdateDisplay: (String) -> Unit) {
-    onUpdateDisplay(currentDisplay + "(")
-}
-
-fun onCloseParenthesis(currentDisplay: String, onUpdateDisplay: (String) -> Unit) {
-    onUpdateDisplay(currentDisplay + ")")
 }
