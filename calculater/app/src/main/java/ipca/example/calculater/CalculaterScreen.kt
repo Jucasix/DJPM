@@ -1,9 +1,6 @@
 package ipca.example.calculater
 
-import androidx.compose.foundation.layout.* // Já está importado
-import androidx.compose.foundation.shape.CircleShape // Importa a forma circular
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults // Para alterar as cores do botão
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,7 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
-
+import ipca.example.calculater.ui.components.CalcButton
 
 @Preview
 @Composable
@@ -30,12 +27,10 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally // Centralizando conteúdo
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Espaço para o display
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Linha superior: exibe a operação atual
         Text(
             text = operationDisplay,
             fontSize = 24.sp,
@@ -46,7 +41,6 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
             maxLines = 1
         )
 
-        // Linha inferior: exibe o resultado ou o número digitado
         Text(
             text = display,
             fontSize = 48.sp,
@@ -58,84 +52,84 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
             textAlign = TextAlign.End
         )
 
-        // Espaço para os botões
         Spacer(modifier = Modifier.height(24.dp))
 
         // Primeira linha: C, (), %, /
         Row {
-            CalcButton(text = "C") {
+            CalcButton(text = "C", isOperator = true, onClick = {
                 clearCalculator(
                     onUpdateDisplay = { display = it },
                     onUpdateOperador = { operador = it },
                     onUpdateValor1 = { valor1 = it },
                     onUpdateOperationDisplay = { operationDisplay = it }
                 )
-            }
-            CalcButton(text = if (isOpenParenthesis) ")" else "(") {
+            })
+            CalcButton(text = if (isOpenParenthesis) ")" else "(", isOperator = true, onClick = {
                 if (isOpenParenthesis) {
                     onCloseParenthesis(display, onUpdateDisplay = { display = it })
                 } else {
                     onOpenParenthesis(display, onUpdateDisplay = { display = it })
                 }
                 isOpenParenthesis = !isOpenParenthesis
-            }
-            CalcButton(text = "%") {
+            })
+            CalcButton(text = "%", isOperator = true, onClick = {
                 onPercentClick(display, onUpdateDisplay = { display = it })
-            }
-            CalcButton(text = "/") {
+            })
+            CalcButton(text = "/", isOperator = true, onClick = {
                 operador = "/"
                 valor1 = display
                 display = ""
                 operationDisplay = "$valor1 /"
-            }
+            })
         }
 
         // Segunda linha: 7, 8, 9, *
         Row {
-            CalcButton(text = "7") { onNumberClick("7", display, onUpdateDisplay = { display = it }) }
-            CalcButton(text = "8") { onNumberClick("8", display, onUpdateDisplay = { display = it }) }
-            CalcButton(text = "9") { onNumberClick("9", display, onUpdateDisplay = { display = it }) }
-            CalcButton(text = "*") {
+            CalcButton(text = "7", onClick = { onNumberClick("7", display, onUpdateDisplay = { display = it }) })
+            CalcButton(text = "8", onClick = { onNumberClick("8", display, onUpdateDisplay = { display = it }) })
+            CalcButton(text = "9", onClick = { onNumberClick("9", display, onUpdateDisplay = { display = it }) })
+            CalcButton(text = "*", isOperator = true, onClick = {
                 operador = "*"
                 valor1 = display
                 display = ""
                 operationDisplay = "$valor1 *"
-            }
+            })
         }
 
         // Terceira linha: 4, 5, 6, -
         Row {
-            CalcButton(text = "4") { onNumberClick("4", display, onUpdateDisplay = { display = it }) }
-            CalcButton(text = "5") { onNumberClick("5", display, onUpdateDisplay = { display = it }) }
-            CalcButton(text = "6") { onNumberClick("6", display, onUpdateDisplay = { display = it }) }
-            CalcButton(text = "-") {
+            CalcButton(text = "4", onClick = { onNumberClick("4", display, onUpdateDisplay = { display = it }) })
+            CalcButton(text = "5", onClick = { onNumberClick("5", display, onUpdateDisplay = { display = it }) })
+            CalcButton(text = "6", onClick = { onNumberClick("6", display, onUpdateDisplay = { display = it }) })
+            CalcButton(text = "-", isOperator = true, onClick = {
                 operador = "-"
                 valor1 = display
                 display = ""
                 operationDisplay = "$valor1 -"
-            }
+            })
         }
 
         // Quarta linha: 1, 2, 3, +
         Row {
-            CalcButton(text = "1") { onNumberClick("1", display, onUpdateDisplay = { display = it }) }
-            CalcButton(text = "2") { onNumberClick("2", display, onUpdateDisplay = { display = it }) }
-            CalcButton(text = "3") { onNumberClick("3", display, onUpdateDisplay = { display = it }) }
-            CalcButton(text = "+") {
+            CalcButton(text = "1", onClick = { onNumberClick("1", display, onUpdateDisplay = { display = it }) })
+            CalcButton(text = "2", onClick = { onNumberClick("2", display, onUpdateDisplay = { display = it }) })
+            CalcButton(text = "3", onClick = { onNumberClick("3", display, onUpdateDisplay = { display = it }) })
+            CalcButton(text = "+", isOperator = true, onClick = {
                 operador = "+"
                 valor1 = display
                 display = ""
                 operationDisplay = "$valor1 +"
-            }
+            })
         }
 
         // Última linha: +/-, 0, ., =
         Row {
-            // Diminuindo a fonte do botão "+/-"
-            CalcButton(text = "+/-", fontSize = 18.sp) { onToggleSign(display, onUpdateDisplay = { display = it }) }
-            CalcButton(text = "0") { onNumberClick("0", display, onUpdateDisplay = { display = it }) }
-            CalcButton(text = ".") { onDecimalClick(display, onUpdateDisplay = { display = it }) }
-            CalcButton(text = "=") {
+            CalcButton(text = "+/-", fontSize = 18.sp, isOperator = true, onClick = {
+                onToggleSign(display, onUpdateDisplay = { display = it })
+            })
+            CalcButton(text = "0", onClick = { onNumberClick("0", display, onUpdateDisplay = { display = it }) })
+            CalcButton(text = ".", onClick = { onDecimalClick(display, onUpdateDisplay = { display = it }) })
+            CalcButton(text = "=", isOperator = true, onClick = {
                 calculateResult(
                     valor1 = valor1,
                     valor2 = display,
@@ -143,26 +137,11 @@ fun CalculatorScreen(modifier: Modifier = Modifier) {
                     onUpdateDisplay = { display = it },
                     onUpdateOperationDisplay = { operationDisplay = it }
                 )
-            }
+            })
         }
     }
 }
 
-@Composable
-fun CalcButton(text: String, fontSize: TextUnit = 24.sp, onClick: () -> Unit) {
-    Button(
-        onClick = onClick,
-        shape = CircleShape, // Botões redondos
-        colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Blue // Botões de cor azul
-        ),
-        modifier = Modifier
-            .padding(8.dp)
-            .size(64.dp) // Tamanho do botão (largura e altura iguais)
-    ) {
-        Text(text = text, color = Color.White, fontSize = fontSize)
-    }
-}
 
 
 // Funções auxiliares
@@ -188,7 +167,6 @@ fun onToggleSign(currentDisplay: String, onUpdateDisplay: (String) -> Unit) {
 }
 
 fun onDecimalClick(currentDisplay: String, onUpdateDisplay: (String) -> Unit) {
-    // Se o número já tiver um ponto decimal, não faz nada
     if (!currentDisplay.contains(".")) {
         onUpdateDisplay(currentDisplay + ".")
     }
@@ -207,10 +185,14 @@ fun calculateResult(
         "+" -> num1 + num2
         "-" -> num1 - num2
         "*" -> num1 * num2
-        "/" -> if (num2 != 0.0) num1 / num2 else "Erro"
+        "/" -> if (num2 != 0.0) num1 / num2 else Double.NaN
         else -> 0.0
     }
-    onUpdateDisplay(result.toString())
+
+    // Arredondar o resultado para no máximo 6 casas decimais
+    val roundedResult = String.format("%.6f", result).toDouble()
+
+    onUpdateDisplay(roundedResult.toString())
     onUpdateOperationDisplay("$valor1 $operador $valor2 =")
 }
 
@@ -230,4 +212,3 @@ fun onPercentClick(currentDisplay: String, onUpdateDisplay: (String) -> Unit) {
     val value = currentDisplay.toDoubleOrNull() ?: 0.0
     onUpdateDisplay((value / 100).toString())
 }
-
