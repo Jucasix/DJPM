@@ -9,5 +9,4 @@ class Article (var title: String? = null,
                var url: String? = null,
                var publishedAt: Date? = null) {
 
-
 }
