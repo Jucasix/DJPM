@@ -19,14 +19,14 @@ fun HomeView(modifier: Modifier = Modifier) {
         Article(
             "Título 1",
             "Descrição 1",
-            "Imagem 1",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRx60BLi0s29H9Imq8T9A-WyTOjttXBaD5BaQ&s",
             "https://link1.com",
             Date()
         ),
        Article(
             "Título 2",
             "Descrição 2",
-            "Imagem 2",
+            "url",
             "https://link2.com",
             Date()
         )
