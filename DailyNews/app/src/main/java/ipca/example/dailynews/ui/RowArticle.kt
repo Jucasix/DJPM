@@ -16,9 +16,9 @@ import ipca.example.dailynews.R
 import ipca.example.dailynews.models.Article
 
 @Composable
-fun RowArticle(article: Article) {
+fun RowArticle(modifier: Modifier, article: Article) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(8.dp)
     ) {
