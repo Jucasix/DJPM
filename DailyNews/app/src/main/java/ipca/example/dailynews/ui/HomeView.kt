@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
@@ -41,41 +40,50 @@ fun HomeView(
 }
 
 @Composable
-fun HomeViewContent(modifier: Modifier = Modifier,
-                    navController: NavController = rememberNavController(),
-                    uiState: ArticlesState) {
-    Box(modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center){
-        if (uiState.isLoading) {
-            Text("Loading articles...")
-        }
-        else if (uiState.error != null) {
-            Text("Error: ${uiState.error}")
-        }
-        else if (uiState.articles.isEmpty()) {
-            Text("No articles found!")
-        }else{
-            LazyColumn(modifier = modifier
-                .fillMaxSize()) {
-                itemsIndexed(
-                    items = uiState.articles,
-                ){ index, article ->
-                    RowArticle(
-                        modifier = Modifier
-                            .clickable {
-                                Log.d("dailynews",article.url ?:"none")
-                                navController.navigate(
-                                    Screen.ArticleDetail.route
-                                        .replace("{articleUrl}", article.url?.encodeURL()?:"")
-                                )
-                            },
-                        article = article)
+fun HomeViewContent(
+    modifier: Modifier = Modifier,
+    navController: NavController = rememberNavController(),
+    uiState: ArticlesState
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        when {
+            uiState.isLoading -> {
+                Text("Loading articles...")
+            }
+            uiState.error != null -> {
+                Text("Error: ${uiState.error}")
+            }
+            uiState.articles.isEmpty() -> {
+                Text("No articles found!")
+            }
+            else -> {
+                LazyColumn(modifier = modifier.fillMaxSize()) {
+                    itemsIndexed(
+                        items = uiState.articles.filter { article -> article.title != "[Removed]" }, // Filtra artigos sem título
+                    ) { index, article ->
+                        RowArticle(
+                            modifier = Modifier
+                                .clickable {
+                                    Log.d("dailynews", article.url ?: "none")
+                                    navController.navigate(
+                                        Screen.ArticleDetail.route.replace(
+                                            "{articleUrl}",
+                                            article.url?.encodeURL() ?: ""
+                                        )
+                                    )
+                                },
+                            article = article
+                        )
+                    }
                 }
             }
         }
     }
-
 }
+
 
 @Preview(showBackground = true)
 @Composable
