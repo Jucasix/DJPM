@@ -3,45 +3,45 @@ package ipca.example.dailynews
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import ipca.example.dailynews.ui.ArticleDetail
 import ipca.example.dailynews.ui.HomeView
-import ipca.example.dailynews.ui.SportsView
-import ipca.example.dailynews.ui.PoliticsView
-import ipca.example.dailynews.ui.BottomNavBar
 import ipca.example.dailynews.ui.theme.DailyNewsTheme
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         setContent {
             DailyNewsTheme {
-                val navController = rememberNavController()
-                MainScreen(navController = navController)
+                var navController = rememberNavController()
+                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    NavHost(navController = navController,
+                        startDestination = Screen.Home.route ) {
+                        composable(route = Screen.Home.route) {
+                            HomeView(
+                                navController = navController,
+                                modifier = Modifier.padding(innerPadding)
+                            )
+                        }
+                        composable(route = Screen.ArticleDetail.route) {
+                            val url = it.arguments?.getString("articleUrl")
+                            ArticleDetail(
+                                modifier = Modifier.padding(innerPadding),
+                                url = url ?: ""
+                            )
+                        }
+                    }
+                }
             }
-        }
-    }
-}
-
-@Composable
-fun MainScreen(navController: NavHostController) {
-    Scaffold(
-        bottomBar = { BottomNavBar(navController = navController) }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = "home",
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable("home") { HomeView(navController = navController) }
-            composable("sports") { SportsView(navController = navController) }
-            composable("politics") { PoliticsView(navController = navController) }
         }
     }
 }
