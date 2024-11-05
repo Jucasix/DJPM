@@ -31,9 +31,13 @@ class HomeViewModel : ViewModel() {
             error = null)
 
         val client = OkHttpClient()
+        var cat = ""
+        if (category.isNotEmpty()) {
+            cat = "&category=$category"
+        })
 
         val request = Request.Builder()
-            .url("https://newsapi.org/v2/top-headlines?country=us&apiKey=c685596bf77f4b6b872cf1b877ff27a9")
+            .url("https://newsapi.org/v2/top-headlines?country=us$cat&apiKey=c685596bf77f4b6b872cf1b877ff27a9")
             .build()
 
         client.newCall(request).enqueue(object : Callback {
