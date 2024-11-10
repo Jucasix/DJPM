@@ -8,13 +8,16 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.layout.ContentScale
 
 @Composable
-fun MainMenuScreen(context: Context, onPlayClick: () -> Unit, onHighScoreClick: () -> Unit) {
+fun HighScoreScreen(context: Context, onReturnToMenu: () -> Unit) {
+    val scoreManager = ScoreManager(context)
+    val highScore = scoreManager.getHighScore()
+
     Box(modifier = Modifier.fillMaxSize()) {
         // Exibir a imagem de fundo e ajustá-la para preencher o ecrã
         Image(
@@ -24,18 +27,17 @@ fun MainMenuScreen(context: Context, onPlayClick: () -> Unit, onHighScoreClick: 
             contentScale = ContentScale.Crop
         )
 
-        // Conteúdo do menu
         Column(
             modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(onClick = onPlayClick) {
-                Text(text = "PLAY NOW", fontSize = 18.sp)
-            }
+            Text(text = "High Score", fontSize = 30.sp)
             Spacer(modifier = Modifier.height(16.dp))
-            Button(onClick = onHighScoreClick) {
-                Text(text = "HIGH SCORE", fontSize = 18.sp)
+            Text(text = "$highScore", fontSize = 24.sp)
+            Spacer(modifier = Modifier.height(32.dp))
+            Button(onClick = onReturnToMenu) {
+                Text("Return to Menu")
             }
         }
     }

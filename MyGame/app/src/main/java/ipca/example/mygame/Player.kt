@@ -14,21 +14,46 @@ import androidx.compose.ui.res.imageResource
 class Player(context: Context) {
     private val playerBitmap: ImageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.player)
     val height: Int
-        get() = playerBitmap.height // Altura do Bitmap do player
+        get() = playerBitmap.height
     var xPosition by mutableStateOf(100f)
     var yPosition by mutableStateOf(600f)
-    private val jumpHeight = 300f
-    private var isJumping by mutableStateOf(false)
-    private var yVelocity by mutableStateOf(0f)
+
+    // Ajustes de controle para salto fluido
+    var yVelocity = 0f
+    private val initialJumpStrength = 10f // Reduzida para uma subida mais lenta
+    private val gravity = 0.4f // Gravidade mais leve para uma descida mais suave
+    private val maxJumpHeight = 200f
+    private val terminalVelocity = 8f // Limite da velocidade de descida mais baixo para suavizar a queda
+
+    var isJumping by mutableStateOf(false)
+    private var isGoingUp = true // Controla a direção do salto
 
     fun update() {
         if (isJumping) {
-            yVelocity -= 10
-            yPosition -= yVelocity
+            if (isGoingUp) {
+                // Subida
+                yVelocity -= gravity
+                yPosition -= yVelocity
+
+                // Verifica se atingiu o topo do salto
+                if (yPosition <= 600f - maxJumpHeight || yVelocity <= 0f) {
+                    isGoingUp = false // Inicia a descida
+                }
+            } else {
+                // Descida
+                yVelocity += gravity // Gravidade aplicada durante a descida
+                if (yVelocity > terminalVelocity) {
+                    yVelocity = terminalVelocity // Limita a velocidade de descida
+                }
+                yPosition += yVelocity
+            }
+
+            // Retornar ao chão
             if (yPosition >= 600f) {
                 yPosition = 600f
-                isJumping = false
                 yVelocity = 0f
+                isJumping = false
+                isGoingUp = true // Reset para próximo salto
             }
         }
     }
@@ -36,7 +61,8 @@ class Player(context: Context) {
     fun jump() {
         if (!isJumping) {
             isJumping = true
-            yVelocity = 30f
+            isGoingUp = true
+            yVelocity = initialJumpStrength // Define a força inicial para a subida
         }
     }
 
@@ -58,10 +84,13 @@ class Player(context: Context) {
         }
     }
 
-    fun getBounds() = android.graphics.Rect(
-        xPosition.toInt(),
-        yPosition.toInt(),
-        xPosition.toInt() + playerBitmap.width,
-        yPosition.toInt() + playerBitmap.height
-    )
+    fun getBounds(): android.graphics.Rect {
+        val scaleFactor = 4f // Certifique-se de que o fator de escala é o mesmo que o usado para desenhar o jogador
+        return android.graphics.Rect(
+            xPosition.toInt(),
+            yPosition.toInt(),
+            (xPosition + playerBitmap.width * scaleFactor).toInt(),
+            (yPosition + playerBitmap.height * scaleFactor).toInt()
+        )
+    }
 }

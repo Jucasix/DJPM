@@ -17,15 +17,39 @@ open class ObstacleBase(context: Context, imageResId: Int, startX: Float) {
     var xPosition by mutableStateOf(startX)
     var yPosition by mutableStateOf(0f) // Ajustado posteriormente na posição do chão
 
+    private val obstacleWidthPx = obstacleImage.width
+
+    // Distância mínima entre obstáculos
+    private val minDistanceBetweenObstacles = 500f
+
+    // Atraso inicial extra para colocar os obstáculos bem fora do ecrã no início do jogo
+    private var initialDelay = Random.nextInt(500, 1500).toFloat()
+
     fun setGroundPosition(groundYPosition: Float) {
         yPosition = groundYPosition - obstacleImage.height
     }
 
-    fun update() {
-        xPosition -= 10 // Movimento para a esquerda
-        if (xPosition < -obstacleImage.width) {
-            xPosition = Random.nextFloat() * 300 + 1080f // Reposição aleatória
+    fun update(previousObstacleX: Float?, screenWidth: Float, obstacleSpeed: Float) {
+        if (initialDelay > 0) {
+            initialDelay -= 10
+            xPosition = screenWidth + initialDelay
+        } else {
+            xPosition -= obstacleSpeed
+
+            if (xPosition < -obstacleWidthPx) {
+                val startX = (previousObstacleX ?: screenWidth) + minDistanceBetweenObstacles + Random.nextFloat() * 200
+                xPosition = startX
+            }
         }
+    }
+
+    fun getBounds(): android.graphics.Rect {
+        return android.graphics.Rect(
+            xPosition.toInt(),
+            yPosition.toInt(),
+            (xPosition + obstacleImage.width).toInt(),
+            (yPosition + obstacleImage.height).toInt()
+        )
     }
 
     fun draw(drawScope: DrawScope) {
