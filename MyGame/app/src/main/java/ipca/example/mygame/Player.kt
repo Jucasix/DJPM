@@ -40,7 +40,7 @@ class Player(context: Context) {
         }
     }
 
-    fun draw(drawScope: DrawScope, scale: Float = 1f) {
+    fun draw(drawScope: DrawScope, scale: Float = 4f) {
         drawScope.drawIntoCanvas { canvas ->
             val scaledWidth = playerBitmap.width * scale
             val scaledHeight = playerBitmap.height * scale

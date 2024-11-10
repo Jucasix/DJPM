@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
             } else if (showHighScoreScreen) {
                 // Implementação do ecrã de High Score
             } else {
-                MainGameScreen(
+                MainMenuScreen(
                     context = this,
                     onPlayClick = { showGameScreen = true },
                     onHighScoreClick = { showHighScoreScreen = true }

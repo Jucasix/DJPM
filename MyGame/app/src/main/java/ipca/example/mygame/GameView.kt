@@ -14,38 +14,32 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.unit.dp
+import kotlin.random.Random
 
 @Composable
 fun GameScreen(context: Context) {
     val density = LocalDensity.current
-
-    // Carregar a imagem de fundo do início
     val background = ImageBitmap.imageResource(id = R.drawable.main_screen)
 
-    // Carregar a imagem do chão (spritesheet)
-    val groundImage = ImageBitmap.imageResource(id = R.drawable.jungletileset)
+    val grass = remember { Grass(context) }
 
-    // Criar a lista de obstáculos
     val obstacles = remember {
         listOf(
-            Obstacle(context, startX = 1080f, density = density),
-            Obstacle(context, startX = 1600f, density = density)
+            ObstacleB(context, startX = Random.nextFloat() * 300 + 1080f),
+            ObstacleL(context, startX = Random.nextFloat() * 300 + 1380f),
+            ObstacleM(context, startX = Random.nextFloat() * 300 + 1600f)
         )
     }
 
-    // Criar o jogador
     val player = remember { Player(context) }
 
     Canvas(
         modifier = Modifier
             .fillMaxSize()
             .pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    player.jump()
-                })
+                detectTapGestures(onTap = { player.jump() })
             }
     ) {
-        // Desenhar o fundo
         drawIntoCanvas { canvas ->
             canvas.nativeCanvas.drawBitmap(
                 background.asAndroidBitmap(),
@@ -55,33 +49,17 @@ fun GameScreen(context: Context) {
             )
         }
 
-        // Definir a posição do chão na parte inferior do ecrã
-        val groundYPosition = size.height - 64.dp.toPx() // Posição do chão na parte inferior
+        val groundYPosition = size.height - 32.dp.toPx()
+        grass.draw(this, groundYPosition, size.width, scale = 4f)
 
-        // Ajustar a posição do jogador para a parte inferior e aumentar o tamanho
-        player.yPosition = groundYPosition - player.height.toFloat() // Ajusta o player para correr sobre a relva
+        player.yPosition = groundYPosition - player.height * 4
         player.update()
-        player.draw(this, scale = 2f) // Aumentar o tamanho do player
+        player.draw(this, scale = 4f)
 
-        // Atualizar e desenhar cada obstáculo
         obstacles.forEach { obstacle ->
+            obstacle.setGroundPosition(groundYPosition)
             obstacle.update()
             obstacle.draw(this)
-
-            // Verificação de colisão
-            if (player.getBounds().intersect(obstacle.getBounds())) {
-                // Lógica para o jogador perder
-            }
-        }
-
-        // Desenhar o chão a partir da spritesheet
-        drawIntoCanvas { canvas ->
-            canvas.nativeCanvas.drawBitmap(
-                groundImage.asAndroidBitmap(),
-                android.graphics.Rect(0, 0, 64, 64),
-                android.graphics.RectF(0f, groundYPosition, size.width, size.height),
-                null
-            )
         }
     }
 }
