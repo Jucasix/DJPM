@@ -1,96 +1,69 @@
 package ipca.example.mygame
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.res.imageResource
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import ipca.example.mygame.R
 
-class Player(context: Context) {
-    private val playerBitmap: ImageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.player)
-    val height: Int
-        get() = playerBitmap.height
-    var xPosition by mutableStateOf(100f)
-    var yPosition by mutableStateOf(600f)
+class Player(context: Context, screenWidth: Int, private val screenHeight: Int) {
 
-    // Ajustes de controle para salto fluido
-    var yVelocity = 0f
-    private val initialJumpStrength = 10f // Reduzida para uma subida mais lenta
-    private val gravity = 0.4f // Gravidade mais leve para uma descida mais suave
-    private val maxJumpHeight = 200f
-    private val terminalVelocity = 8f // Limite da velocidade de descida mais baixo para suavizar a queda
+    var bitmap: Bitmap
+    var x: Float = 50f
+    var y: Float
+    private var velocityY = 0f
+    private var isJumping = false
 
-    var isJumping by mutableStateOf(false)
-    private var isGoingUp = true // Controla a direção do salto
+    init {
+        // Carregar o bitmap e redimensionar de acordo com screenWidth e screenHeight
+        val originalBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.player)
+        val playerWidth = (screenWidth * 0.25).toInt()
+        val playerHeight = (screenHeight * 0.2).toInt()
+        bitmap = Bitmap.createScaledBitmap(originalBitmap, playerWidth, playerHeight, false)
 
-    fun update() {
+        // Definir a posição inicial do player
+        y = (screenHeight - bitmap.height - 100).toFloat()
+    }
+
+    // Verifica colisão com um obstáculo
+    fun isCollidingWith(obstacle: ObstacleBase): Boolean {
+        val playerRight = x + bitmap.width
+        val playerBottom = y + bitmap.height
+        val obstacleRight = obstacle.xPosition + obstacle.obstacleImage.width
+        val obstacleBottom = obstacle.yPosition + obstacle.obstacleImage.height
+
+        return playerRight > obstacle.xPosition && x < obstacleRight &&
+                playerBottom > obstacle.yPosition && y < obstacleBottom
+    }
+
+    fun update(screenHeight: Int) {
         if (isJumping) {
-            if (isGoingUp) {
-                // Subida
-                yVelocity -= gravity
-                yPosition -= yVelocity
-
-                // Verifica se atingiu o topo do salto
-                if (yPosition <= 600f - maxJumpHeight || yVelocity <= 0f) {
-                    isGoingUp = false // Inicia a descida
-                }
-            } else {
-                // Descida
-                yVelocity += gravity // Gravidade aplicada durante a descida
-                if (yVelocity > terminalVelocity) {
-                    yVelocity = terminalVelocity // Limita a velocidade de descida
-                }
-                yPosition += yVelocity
-            }
-
-            // Retornar ao chão
-            if (yPosition >= 600f) {
-                yPosition = 600f
-                yVelocity = 0f
+            velocityY += 1 // Gravidade simulada
+            y += velocityY
+            if (y >= screenHeight - bitmap.height - 100) {
+                y = (screenHeight - bitmap.height - 100).toFloat()
                 isJumping = false
-                isGoingUp = true // Reset para próximo salto
+                velocityY = 0f
             }
         }
     }
 
     fun jump() {
         if (!isJumping) {
+            velocityY = -20f  // Ajusta a força do salto
             isJumping = true
-            isGoingUp = true
-            yVelocity = initialJumpStrength // Define a força inicial para a subida
         }
     }
 
-    fun draw(drawScope: DrawScope, scale: Float = 4f) {
-        drawScope.drawIntoCanvas { canvas ->
-            val scaledWidth = playerBitmap.width * scale
-            val scaledHeight = playerBitmap.height * scale
-            canvas.nativeCanvas.drawBitmap(
-                playerBitmap.asAndroidBitmap(),
-                null,
-                android.graphics.RectF(
-                    xPosition,
-                    yPosition,
-                    xPosition + scaledWidth,
-                    yPosition + scaledHeight
-                ),
-                null
-            )
-        }
+    fun startRunning() {
+        x += 5  // Move o player para a frente ao correr
     }
 
-    fun getBounds(): android.graphics.Rect {
-        val scaleFactor = 4f // Certifique-se de que o fator de escala é o mesmo que o usado para desenhar o jogador
-        return android.graphics.Rect(
-            xPosition.toInt(),
-            yPosition.toInt(),
-            (xPosition + playerBitmap.width * scaleFactor).toInt(),
-            (yPosition + playerBitmap.height * scaleFactor).toInt()
-        )
+    fun stopRunning() {
+        x = 50f  // Volta à posição inicial ao parar de correr
+    }
+
+    fun draw(canvas: Canvas) {
+        canvas.drawBitmap(bitmap, x, y, null)
     }
 }

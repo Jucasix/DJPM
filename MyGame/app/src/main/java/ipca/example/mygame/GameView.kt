@@ -1,158 +1,150 @@
 package ipca.example.mygame
 
 import android.content.Context
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.res.imageResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.view.MotionEvent
+import android.view.SurfaceHolder
+import android.view.SurfaceView
+import androidx.navigation.NavController
+import kotlin.random.Random
 
-@Composable
-fun GameScreen(context: Context, onReturnToMenu: () -> Unit) {
-    // Gerenciador de score
-    val scoreManager = ScoreManager(context)
+class GameView(context: Context, private val screenWidth: Int, private val screenHeight: Int, private val navController: NavController) : SurfaceView(context), SurfaceHolder.Callback, Runnable {
 
-    // Variáveis de controle de dificuldade e velocidade
-    var obstacleSpeed by remember { mutableStateOf(5f) }
-    var difficultyLevel by remember { mutableStateOf(1) }
-    var lastIncreaseTime by remember { mutableStateOf(System.currentTimeMillis()) }
-    var isGameOver by remember { mutableStateOf(false) }
+    private var playing = false
+    private var gameThread: Thread? = null
+    private lateinit var player: Player
+    private var obstacles: MutableList<ObstacleBase> = mutableListOf()
+    private lateinit var surfaceHolder: SurfaceHolder
+    private var obstacleSpeed = 5f
+    private var grass: Grass? = null
+    private var backgroundBitmap: Bitmap? = null
+    private var gameStartTime: Long = 0
+    private var elapsedTime: Long = 0
+    private val paint = Paint().apply {
+        color = Color.WHITE
+        textSize = 60f
+    }
+    private val scoreManager = ScoreManager(context)
 
-    // Variável para o tempo decorrido
-    var elapsedTime by remember { mutableStateOf(0) }
+    init {
+        surfaceHolder = holder
+        surfaceHolder.addCallback(this)
 
-    // Atualizar o tempo e pontuação a cada segundo
-    LaunchedEffect(Unit) {
-        while (!isGameOver) {
-            delay(1000L) // Aguardar um segundo
-            elapsedTime += 1
+        backgroundBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.main_screen)?.let {
+            Bitmap.createScaledBitmap(it, screenWidth, screenHeight, false)
+        }
+
+        grass = Grass(context, screenWidth, screenHeight / 4)
+        val groundLevelY = screenHeight - (grass?.getHeight() ?: 0).toFloat()
+
+        player = Player(context, (screenWidth * 0.20).toInt(), (screenHeight * 2.25).toInt())
+        player.y = groundLevelY - player.bitmap.height
+
+        var previousX = screenWidth.toFloat() + 500
+        val minSpacing = 600f
+        for (i in 0 until 3) {
+            previousX += minSpacing + Random.nextInt(500, 1500).toFloat()
+            val obstacle = ObstacleB(context, previousX)
+            obstacle.yPosition = groundLevelY - obstacle.getObstacleHeight().toFloat()
+            obstacles.add(obstacle)
+        }
+
+        gameStartTime = System.currentTimeMillis()
+    }
+
+    override fun run() {
+        while (playing) {
+            updateGame()
+            drawGame()
+            checkCollisions()
+            checkDifficultyIncrease()
+            updateElapsedTime()
         }
     }
 
-    val background = ImageBitmap.imageResource(id = R.drawable.main_screen)
-    val grass = remember { Grass(context) }
-    val player = remember { Player(context) }
+    private fun updateGame() {
+        player.update(screenHeight)
+        obstacles.forEach { it.update() }
+    }
 
-    // Estado para lista de obstáculos, que será atualizada com padrões diferentes ao aumentar a dificuldade
-    var obstacles by remember { mutableStateOf(getObstaclePattern(context, difficultyLevel)) }
-
-    if (isGameOver) {
-        // Salva o High Score e exibe a tela de Game Over
-        scoreManager.saveHighScore(elapsedTime)
-        GameOverScreen(context = context, onReturnToMenu = onReturnToMenu)
-    } else {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // Canvas com o jogo
-            Canvas(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .pointerInput(Unit) {
-                        detectTapGestures(onTap = { player.jump() })
-                    }
-            ) {
-                // Desenhar o fundo
-                drawIntoCanvas { canvas ->
-                    canvas.nativeCanvas.drawBitmap(
-                        background.asAndroidBitmap(),
-                        android.graphics.Rect(0, 0, background.width, background.height),
-                        android.graphics.RectF(0f, 0f, size.width, size.height),
-                        null
-                    )
+    private fun drawGame() {
+        val canvas = surfaceHolder.lockCanvas()
+        if (canvas != null) {
+            try {
+                backgroundBitmap?.let {
+                    canvas.drawBitmap(it, 0f, 0f, null)
+                } ?: run {
+                    canvas.drawColor(Color.BLACK)
                 }
 
-                // Definir a posição do chão
-                val groundYPosition = size.height - 32.dp.toPx()
+                grass?.draw(canvas)
+                player.draw(canvas)
+                obstacles.forEach { it.draw(canvas) }
 
-                // Desenhar a relva
-                grass.draw(this, groundYPosition, size.width, scale = 4f)
-
-                // Ajustar a posição do player para correr sobre a relva
-                player.yPosition = groundYPosition - player.height * 4
-                player.update()
-                player.draw(this, scale = 4f)
-
-                // Atualizar dificuldade a cada minuto
-                if (System.currentTimeMillis() - lastIncreaseTime >= 30000) {
-                    obstacleSpeed += 2f // Aumenta a velocidade dos obstáculos
-                    difficultyLevel += 1 // Aumenta o nível de dificuldade
-                    lastIncreaseTime = System.currentTimeMillis() // Reseta o contador de tempo
-
-                    // Atualiza a lista de obstáculos com o novo padrão
-                    obstacles = getObstaclePattern(context, difficultyLevel)
-                }
-
-                // Variável para armazenar a posição x do obstáculo anterior
-                var previousObstacleX: Float? = null
-
-                // Desenhar e atualizar cada obstáculo
-                obstacles.forEach { obstacle ->
-                    obstacle.setGroundPosition(groundYPosition)
-                    obstacle.update(previousObstacleX, size.width, obstacleSpeed)
-                    obstacle.draw(this)
-
-                    // Verificação de colisão com o player
-                    if (checkCollision(player, obstacle)) {
-                        isGameOver = true // Define o estado como "Game Over"
-                    }
-
-                    previousObstacleX = obstacle.xPosition
-                }
+                canvas.drawText("Time: ${elapsedTime / 1000}s", 50f, 100f, paint)
+            } finally {
+                surfaceHolder.unlockCanvasAndPost(canvas)
             }
-
-            // Exibir o tempo decorrido e a pontuação no canto superior esquerdo, fora do Canvas
-            Text(
-                text = "Tempo: ${elapsedTime}s",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(16.dp)
-            )
         }
     }
-}
 
-// Função para obter o padrão de obstáculos com base no nível de dificuldade
-fun getObstaclePattern(context: Context, difficultyLevel: Int): List<ObstacleBase> {
-    return when (difficultyLevel) {
-        1 -> listOf(ObstacleB(context, startX = 1080f)) // Padrão simples
-        2 -> listOf(
-            ObstacleB(context, startX = 1080f),
-            ObstacleL(context, startX = 1300f)
-        ) // Padrão médio
-        3 -> listOf(
-            ObstacleB(context, startX = 1080f),
-            ObstacleL(context, startX = 1300f),
-            ObstacleM(context, startX = 1600f)
-        ) // Padrão avançado
-        else -> listOf(
-            ObstacleB(context, startX = 1080f),
-            ObstacleL(context, startX = 1200f),
-            ObstacleM(context, startX = 1400f),
-            ObstacleB(context, startX = 1600f)
-        ) // Padrão mais difícil
+    private fun checkCollisions() {
+        for (obstacle in obstacles) {
+            if (player.isCollidingWith(obstacle)) {
+                scoreManager.saveHighScore((elapsedTime / 1000).toInt())
+                playing = false
+                navController.navigate("game_over")  // Redireciona para a tela de Game Over
+                break
+            }
+        }
     }
-}
 
-// Função para verificar a colisão do jogador com um obstáculo
-fun checkCollision(player: Player, obstacle: ObstacleBase): Boolean {
-    val playerBounds = player.getBounds()
-    val obstacleBounds = obstacle.getBounds()
+    private fun checkDifficultyIncrease() {
+        if (elapsedTime / 1000 % 30 == 0L && elapsedTime > 0) {
+            obstacleSpeed += 1f
+            obstacles.forEach { it.speed = obstacleSpeed }
+        }
+    }
 
-    // Colisão lateral - se o jogador toca os lados do obstáculo, ele perde
-    return if (playerBounds.intersect(obstacleBounds)) {
-        player.yPosition + player.height < obstacle.yPosition + 10 // Permite pular sobre o obstáculo
-    } else false
+    private fun updateElapsedTime() {
+        elapsedTime = System.currentTimeMillis() - gameStartTime
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> {
+                player.jump()
+                player.startRunning()
+            }
+            MotionEvent.ACTION_UP -> {
+                player.stopRunning()
+            }
+        }
+        return true
+    }
+
+    fun resume() {
+        playing = true
+        gameThread = Thread(this)
+        gameThread?.start()
+    }
+
+    fun pause() {
+        playing = false
+        gameThread?.join()
+    }
+
+    override fun surfaceCreated(holder: SurfaceHolder) {
+        resume()
+    }
+
+    override fun surfaceDestroyed(holder: SurfaceHolder) {
+        pause()
+    }
+
+    override fun surfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {}
 }

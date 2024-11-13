@@ -1,66 +1,32 @@
 package ipca.example.mygame
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.res.imageResource
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import androidx.core.graphics.drawable.toBitmap
 import kotlin.random.Random
 
 open class ObstacleBase(context: Context, imageResId: Int, startX: Float) {
-    private val obstacleImage: ImageBitmap = ImageBitmap.imageResource(context.resources, imageResId)
-    var xPosition by mutableStateOf(startX)
-    var yPosition by mutableStateOf(0f) // Ajustado posteriormente na posição do chão
 
-    private val obstacleWidthPx = obstacleImage.width
+    val obstacleImage: Bitmap = context.resources.getDrawable(imageResId, null).toBitmap()
+    var xPosition = startX
+    var yPosition = 0f  // Posição Y ajustável para os obstáculos
+    var speed = 5f  // Velocidade do obstáculo, ajustável para aumentar a dificuldade
 
-    // Distância mínima entre obstáculos
-    private val minDistanceBetweenObstacles = 500f
-
-    // Atraso inicial extra para colocar os obstáculos bem fora do ecrã no início do jogo
-    private var initialDelay = Random.nextInt(500, 1500).toFloat()
-
-    fun setGroundPosition(groundYPosition: Float) {
-        yPosition = groundYPosition - obstacleImage.height
+    // Método para obter a altura do obstáculo
+    fun getObstacleHeight(): Int {
+        return obstacleImage.height
     }
 
-    fun update(previousObstacleX: Float?, screenWidth: Float, obstacleSpeed: Float) {
-        if (initialDelay > 0) {
-            initialDelay -= 10
-            xPosition = screenWidth + initialDelay
-        } else {
-            xPosition -= obstacleSpeed
-
-            if (xPosition < -obstacleWidthPx) {
-                val startX = (previousObstacleX ?: screenWidth) + minDistanceBetweenObstacles + Random.nextFloat() * 200
-                xPosition = startX
-            }
+    fun update() {
+        xPosition -= speed  // Move o obstáculo com base na velocidade
+        if (xPosition < 0) {
+            xPosition = Random.nextFloat() * 1500 + 500
         }
     }
 
-    fun getBounds(): android.graphics.Rect {
-        return android.graphics.Rect(
-            xPosition.toInt(),
-            yPosition.toInt(),
-            (xPosition + obstacleImage.width).toInt(),
-            (yPosition + obstacleImage.height).toInt()
-        )
-    }
-
-    fun draw(drawScope: DrawScope) {
-        drawScope.drawIntoCanvas { canvas ->
-            canvas.nativeCanvas.drawBitmap(
-                obstacleImage.asAndroidBitmap(),
-                null,
-                android.graphics.RectF(xPosition, yPosition, xPosition + obstacleImage.width, yPosition + obstacleImage.height),
-                null
-            )
-        }
+    fun draw(canvas: Canvas) {
+        canvas.drawBitmap(obstacleImage, xPosition, yPosition, null)
     }
 }
 

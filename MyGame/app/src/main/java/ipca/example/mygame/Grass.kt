@@ -1,29 +1,26 @@
 package ipca.example.mygame
 
 import android.content.Context
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.res.imageResource
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import androidx.core.graphics.drawable.toBitmap
 
-class Grass(context: Context) {
-    private val grassImage: ImageBitmap = ImageBitmap.imageResource(context.resources, R.drawable.grass) // Imagem separada da relva
+class Grass(context: Context, screenWidth: Int, screenHeight: Int) {
 
-    fun draw(drawScope: DrawScope, groundYPosition: Float, screenWidth: Float, scale: Float = 4f) {
-        drawScope.drawIntoCanvas { canvas ->
-            val scaledWidth = grassImage.width * scale
-            val scaledHeight = grassImage.height * scale
+    private val grassBitmap: Bitmap = Bitmap.createScaledBitmap(
+        context.resources.getDrawable(R.drawable.grass, null).toBitmap(),
+        screenWidth,
+        screenHeight,
+        false
+    )
 
-            for (i in 0 until (screenWidth / scaledWidth).toInt() + 1) {
-                canvas.nativeCanvas.drawBitmap(
-                    grassImage.asAndroidBitmap(),
-                    null,
-                    android.graphics.RectF(i * scaledWidth, groundYPosition, (i + 1) * scaledWidth, groundYPosition + scaledHeight),
-                    null
-                )
-            }
-        }
+    // Método para obter a altura da imagem da relva
+    fun getHeight(): Int {
+        return grassBitmap.height
+    }
+
+    fun draw(canvas: Canvas) {
+        canvas.drawBitmap(grassBitmap, 0f, (canvas.height - grassBitmap.height).toFloat(), null)
     }
 }
+
