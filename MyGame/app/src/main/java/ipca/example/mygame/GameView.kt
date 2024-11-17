@@ -3,9 +3,10 @@ package ipca.example.mygame
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
+import android.os.Handler
+import android.os.Looper
 import android.view.MotionEvent
 import android.view.SurfaceHolder
 import android.view.SurfaceView
@@ -95,9 +96,25 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
     private fun checkCollisions() {
         for (obstacle in obstacles) {
             if (player.isCollidingWith(obstacle)) {
+                val playerBottom = player.y + player.bitmap.height
+                val obstacleTop = obstacle.yPosition
+                val playerRight = player.x + player.bitmap.width
+                val obstacleLeft = obstacle.xPosition
+                val obstacleRight = obstacle.xPosition + obstacle.obstacleImage.width
+
+                // Verifica se o player está colidindo pela parte de cima do obstáculo
+                if (playerBottom <= obstacleTop + 10 &&  // Player está em cima
+                    playerRight > obstacleLeft &&      // Dentro da largura do obstáculo
+                    player.x < obstacleRight) {       // Continua o jogo
+                    continue
+                }
+
+                // Caso contrário, considera uma colisão fatal
                 scoreManager.saveHighScore((elapsedTime / 1000).toInt())
                 playing = false
-                navController.navigate("game_over")  // Redireciona para a tela de Game Over
+                Handler(Looper.getMainLooper()).post {
+                    navController.navigate("game_over")
+                }
                 break
             }
         }

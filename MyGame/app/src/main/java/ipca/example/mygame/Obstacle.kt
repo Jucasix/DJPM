@@ -31,6 +31,6 @@ open class ObstacleBase(context: Context, imageResId: Int, startX: Float) {
 }
 
 // Classes específicas para cada tipo de obstáculo
-class ObstacleB(context: Context, startX: Float) : ObstacleBase(context, R.drawable.obstacleb, startX)
+//class ObstacleB(context: Context, startX: Float) : ObstacleBase(context, R.drawable.obstacleb, startX)
 class ObstacleL(context: Context, startX: Float) : ObstacleBase(context, R.drawable.obstaclel, startX)
-class ObstacleM(context: Context, startX: Float) : ObstacleBase(context, R.drawable.obstaclem, startX)
+class ObstacleB(context: Context, startX: Float) : ObstacleBase(context, R.drawable.obstaclem, startX)

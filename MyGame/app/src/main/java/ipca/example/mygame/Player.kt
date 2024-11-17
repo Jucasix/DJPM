@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
-import ipca.example.mygame.R
 
 class Player(context: Context, screenWidth: Int, private val screenHeight: Int) {
 
@@ -13,19 +12,19 @@ class Player(context: Context, screenWidth: Int, private val screenHeight: Int) 
     var y: Float
     private var velocityY = 0f
     private var isJumping = false
+    private var isRunning = false
+    private val runningSpeed = 10f
+    private val returnSpeed = 5f // Velocidade para voltar à posição inicial
 
     init {
-        // Carregar o bitmap e redimensionar de acordo com screenWidth e screenHeight
         val originalBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.player)
         val playerWidth = (screenWidth * 0.25).toInt()
         val playerHeight = (screenHeight * 0.2).toInt()
         bitmap = Bitmap.createScaledBitmap(originalBitmap, playerWidth, playerHeight, false)
 
-        // Definir a posição inicial do player
         y = (screenHeight - bitmap.height - 100).toFloat()
     }
 
-    // Verifica colisão com um obstáculo
     fun isCollidingWith(obstacle: ObstacleBase): Boolean {
         val playerRight = x + bitmap.width
         val playerBottom = y + bitmap.height
@@ -37,6 +36,7 @@ class Player(context: Context, screenWidth: Int, private val screenHeight: Int) 
     }
 
     fun update(screenHeight: Int) {
+        // Atualiza a posição vertical para salto
         if (isJumping) {
             velocityY += 1 // Gravidade simulada
             y += velocityY
@@ -46,21 +46,32 @@ class Player(context: Context, screenWidth: Int, private val screenHeight: Int) 
                 velocityY = 0f
             }
         }
+
+        // Atualiza a posição horizontal para corrida
+        if (isRunning) {
+            x += runningSpeed
+        } else if (!isJumping && y >= screenHeight - bitmap.height - 100) {
+            // Move o player de volta para a posição inicial apenas quando está na relva
+            x -= returnSpeed
+            if (x < 50f) {
+                x = 50f // Garante que não ultrapasse a posição inicial
+            }
+        }
     }
 
     fun jump() {
         if (!isJumping) {
-            velocityY = -20f  // Ajusta a força do salto
+            velocityY = -30f  // Aumenta a força do salto
             isJumping = true
         }
     }
 
     fun startRunning() {
-        x += 5  // Move o player para a frente ao correr
+        isRunning = true
     }
 
     fun stopRunning() {
-        x = 50f  // Volta à posição inicial ao parar de correr
+        isRunning = false
     }
 
     fun draw(canvas: Canvas) {
