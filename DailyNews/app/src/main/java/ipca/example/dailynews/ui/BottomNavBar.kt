@@ -9,12 +9,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import ipca.example.dailynews.Screen
 
 @Composable
-fun BottomNavBar(navController: NavController) {
+fun BottomNavBar(navController: NavController, viewModel: HomeViewModel = viewModel()) {
     val currentBackStackEntry = navController.currentBackStackEntryAsState()
     val currentDestination = currentBackStackEntry.value?.destination?.route
 
@@ -33,17 +33,9 @@ fun BottomNavBar(navController: NavController) {
                         .padding(8.dp)
                         .width(80.dp)
                         .clickable {
-                            // Navegação para a página Home da sua aplicação
-                            if (currentDestination != Screen.Home.route) {
-                                navController.navigate(Screen.Home.route) {
-                                    // Limpa o back stack para evitar voltar à tela anterior
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        inclusive = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }
+                            // Limpa o filtro e mostra todas as notícias
+                            viewModel.setCategoryAndFetch("") // Atualiza a categoria para "Home"
+                            // Não navega, apenas limpa o filtro de notícias
                         },
                     shape = RoundedCornerShape(8.dp),
                     color = MaterialTheme.colorScheme.primary
@@ -56,13 +48,13 @@ fun BottomNavBar(navController: NavController) {
                     }
                 }
 
-                // Botão Sport
+                // Botão Sports
                 Surface(
                     modifier = Modifier
                         .padding(8.dp)
                         .width(80.dp)
                         .clickable {
-                            // Placeholder para futura ação de navegação
+                            viewModel.setCategoryAndFetch("sports") // Atualiza a categoria para "Sports"
                         },
                     shape = RoundedCornerShape(8.dp),
                     color = MaterialTheme.colorScheme.primary
@@ -71,17 +63,17 @@ fun BottomNavBar(navController: NavController) {
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.padding(12.dp)
                     ) {
-                        Text("Sport", color = Color.White)
+                        Text("Sports", color = Color.White)
                     }
                 }
 
-                // Botão Politic
+                // Botão Politics
                 Surface(
                     modifier = Modifier
                         .padding(8.dp)
                         .width(80.dp)
                         .clickable {
-                            // Placeholder para futura ação de navegação
+                            viewModel.setCategoryAndFetch("politics") // Atualiza a categoria para "Politics"
                         },
                     shape = RoundedCornerShape(8.dp),
                     color = MaterialTheme.colorScheme.primary
@@ -90,7 +82,7 @@ fun BottomNavBar(navController: NavController) {
                         contentAlignment = Alignment.Center,
                         modifier = Modifier.padding(12.dp)
                     ) {
-                        Text("Politic", color = Color.White)
+                        Text("Politics", color = Color.White)
                     }
                 }
             }

@@ -24,6 +24,9 @@ class HomeViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(ArticlesState())
     val uiState : StateFlow<ArticlesState> = _uiState.asStateFlow()
 
+    // Variável para armazenar a categoria selecionada
+    var category: String = ""
+
     fun fetchArticles() {
 
         _uiState.value = ArticlesState(
@@ -34,7 +37,7 @@ class HomeViewModel : ViewModel() {
         var cat = ""
         if (category.isNotEmpty()) {
             cat = "&category=$category"
-        })
+        }
 
         val request = Request.Builder()
             .url("https://newsapi.org/v2/top-headlines?country=us$cat&apiKey=c685596bf77f4b6b872cf1b877ff27a9")
@@ -44,7 +47,7 @@ class HomeViewModel : ViewModel() {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
                 _uiState.value = ArticlesState(
-                    isLoading = true,
+                    isLoading = false, // Corrigido de `true` para `false`
                     error = e.message)
             }
 
@@ -72,4 +75,9 @@ class HomeViewModel : ViewModel() {
         })
     }
 
+    // Função para atualizar a categoria e buscar as notícias
+    fun setCategoryAndFetch(category: String) {
+        this.category = category
+        fetchArticles()
+    }
 }
