@@ -42,7 +42,7 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
         grass = Grass(context, screenWidth, screenHeight / 4)
         val groundLevelY = screenHeight - (grass?.getHeight() ?: 0).toFloat()
 
-        player = Player(context, (screenWidth * 0.20).toInt(), (screenHeight * 2.25).toInt())
+        player = Player(context, (screenWidth * 0.20).toInt(), (screenHeight * 0.25).toInt())
         player.y = groundLevelY - player.bitmap.height
 
         var previousX = screenWidth.toFloat() + 500
@@ -59,11 +59,17 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
 
     override fun run() {
         while (playing) {
+            val startTime = System.currentTimeMillis()
+
             updateGame()
             drawGame()
             checkCollisions()
             checkDifficultyIncrease()
             updateElapsedTime()
+
+            val frameTime = System.currentTimeMillis() - startTime
+            val sleepTime = (33 - frameTime).coerceAtLeast(0)
+            Thread.sleep(sleepTime)
         }
     }
 
@@ -102,14 +108,10 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
                 val obstacleLeft = obstacle.xPosition
                 val obstacleRight = obstacle.xPosition + obstacle.obstacleImage.width
 
-                // Verifica se o player está colidindo pela parte de cima do obstáculo
-                if (playerBottom <= obstacleTop + 10 &&  // Player está em cima
-                    playerRight > obstacleLeft &&      // Dentro da largura do obstáculo
-                    player.x < obstacleRight) {       // Continua o jogo
+                if (playerBottom <= obstacleTop + 10 && playerRight > obstacleLeft && player.x < obstacleRight) {
                     continue
                 }
 
-                // Caso contrário, considera uma colisão fatal
                 scoreManager.saveHighScore((elapsedTime / 1000).toInt())
                 playing = false
                 Handler(Looper.getMainLooper()).post {
@@ -122,7 +124,7 @@ class GameView(context: Context, private val screenWidth: Int, private val scree
 
     private fun checkDifficultyIncrease() {
         if (elapsedTime / 1000 % 30 == 0L && elapsedTime > 0) {
-            obstacleSpeed += 1f
+            obstacleSpeed += 2f
             obstacles.forEach { it.speed = obstacleSpeed }
         }
     }

@@ -13,15 +13,22 @@ class Player(context: Context, screenWidth: Int, private val screenHeight: Int) 
     private var velocityY = 0f
     private var isJumping = false
     private var isRunning = false
-    private val runningSpeed = 10f
-    private val returnSpeed = 5f // Velocidade para voltar à posição inicial
+    private val runningSpeed = 15f
+    private val returnSpeed = 5f
 
     init {
+        // Carrega o bitmap original do jogador
         val originalBitmap = BitmapFactory.decodeResource(context.resources, R.drawable.player)
-        val playerWidth = (screenWidth * 0.25).toInt()
-        val playerHeight = (screenHeight * 0.2).toInt()
-        bitmap = Bitmap.createScaledBitmap(originalBitmap, playerWidth, playerHeight, false)
 
+        // Define uma proporção razoável do tamanho do ecrã para o jogador
+        val playerWidth = (screenWidth * 0.35).toInt()  // Ajusta a largura para 10% do ecrã
+        val aspectRatio = originalBitmap.height.toFloat() / originalBitmap.width.toFloat()
+        val playerHeight = (playerWidth * aspectRatio).toInt()  // Mantém a proporção do jogador
+
+        // Cria o bitmap redimensionado do jogador
+        bitmap = Bitmap.createScaledBitmap(originalBitmap, playerWidth, playerHeight, true)
+
+        // Define a posição inicial do jogador no eixo Y
         y = (screenHeight - bitmap.height - 100).toFloat()
     }
 
@@ -38,7 +45,7 @@ class Player(context: Context, screenWidth: Int, private val screenHeight: Int) 
     fun update(screenHeight: Int) {
         // Atualiza a posição vertical para salto
         if (isJumping) {
-            velocityY += 1 // Gravidade simulada
+            velocityY += 2  // Aumenta a gravidade para tornar o salto mais rápido
             y += velocityY
             if (y >= screenHeight - bitmap.height - 100) {
                 y = (screenHeight - bitmap.height - 100).toFloat()
@@ -61,7 +68,7 @@ class Player(context: Context, screenWidth: Int, private val screenHeight: Int) 
 
     fun jump() {
         if (!isJumping) {
-            velocityY = -30f  // Aumenta a força do salto
+            velocityY = -50f  // Aumenta a força do salto para ser mais rápido
             isJumping = true
         }
     }
