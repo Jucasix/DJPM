@@ -32,7 +32,6 @@ fun ListItemsView(
     val viewModel: ListItemsViewModel = viewModel()
     val state by viewModel.state.collectAsState()
 
-
     val newItemName = remember { mutableStateOf("") }
 
     Box(
@@ -49,11 +48,8 @@ fun ListItemsView(
             LazyColumn(modifier = modifier.fillMaxSize().weight(1f)) {
                 itemsIndexed(
                     items = state.items
-                ) { index, item ->
-                    Text(
-                        modifier = Modifier.fillMaxWidth().padding(16.dp),
-                        text = item.name ?: ""
-                    )
+                ) { _, item ->
+                    ItemRowView(item = item)
                 }
             }
 
@@ -80,7 +76,6 @@ fun ListItemsView(
         viewModel.getListName(listId)
         viewModel.getItems(listId)
     }
-
 }
 
 

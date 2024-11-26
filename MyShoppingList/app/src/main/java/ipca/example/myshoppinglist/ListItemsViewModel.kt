@@ -81,7 +81,11 @@ class ListItemsViewModel : ViewModel() {
         try {
             val db = Firebase.firestore
             val newItem = Item(null, itemName, 1.0, false)
-            db.collection("lists").document(listId).collection("items").add(newItem).await()
+            db.collection("lists")
+                .document(listId)
+                .collection("items")
+                .add(newItem)
+                .await()
         } catch (e: Exception) {
             _state.update { it.copy(error = e.message) }
         }

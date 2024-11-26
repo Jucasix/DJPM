@@ -34,6 +34,7 @@ class ListListsViewModel : ViewModel(){
                 for (document in documents) {
                     Log.d(TAG, "${document.id} => ${document.data}")
                     val listItem = document.toObject(ListItems::class.java)
+                    listItem.docId = document.id
                     listItemsList.add(listItem)
                 }
                 state.value = state.value.copy(

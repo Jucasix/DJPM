@@ -34,7 +34,6 @@ class AddListViewModel : ViewModel(){
         val userId = currentUser?.uid
 
         val listItems = ListItems(
-            "",
             state.value.name,
             arrayListOf(userId?:"")
         )
