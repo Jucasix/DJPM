@@ -35,13 +35,14 @@ class ListItemsViewModel : ViewModel() {
         }
     }
 
-    fun addItem(listId: String, itemName: String) {
+    fun addItem(listId: String, itemName: String, quantity: Double) {
         if (itemName.isBlank()) return
 
         viewModelScope.launch {
             try {
-                addItemToFirebase(listId, itemName)
-                val updatedItems = _state.value.items + Item(null, itemName, 1.0, false)
+                // TODO: Add logic to add item to Firebase under the specified listId
+                addItemToFirebase(listId, itemName, quantity)
+                val updatedItems = _state.value.items + Item(docId = null, name = itemName, qtd = quantity, checked = false)
                 _state.update { it.copy(items = updatedItems) }
             } catch (e: Exception) {
                 _state.update { it.copy(error = e.message) }
@@ -77,10 +78,10 @@ class ListItemsViewModel : ViewModel() {
         return items
     }
 
-    private suspend fun addItemToFirebase(listId: String, itemName: String) {
+    private suspend fun addItemToFirebase(listId: String, itemName: String, quantity: Double) {
         try {
             val db = Firebase.firestore
-            val newItem = Item(null, itemName, 1.0, false)
+            val newItem = Item(null, itemName, quantity, false)
             db.collection("lists")
                 .document(listId)
                 .collection("items")

@@ -2,6 +2,7 @@ package ipca.example.myshoppinglist
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -53,22 +54,36 @@ fun ListItemsView(
                 }
             }
 
-            TextField(
-                value = newItemName.value,
-                onValueChange = { newItemName.value = it },
-                placeholder = { Text("New Item") },
-                modifier = Modifier.fillMaxWidth().padding(16.dp)
-            )
+            val newItemQuantity = remember { mutableStateOf("") }
+
+            Row(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
+                TextField(
+                    value = newItemName.value,
+                    onValueChange = { newItemName.value = it },
+                    placeholder = { Text("New Item") },
+                    modifier = Modifier.weight(3f).padding(end = 8.dp)
+                )
+
+                TextField(
+                    value = newItemQuantity.value,
+                    onValueChange = { newItemQuantity.value = it },
+                    placeholder = { Text("Qt") },
+                    modifier = Modifier.weight(1f)
+                )
+            }
 
             Button(
                 modifier = Modifier.padding(16.dp),
                 onClick = {
-                    viewModel.addItem(listId, newItemName.value)
+                    val quantity = newItemQuantity.value.toDoubleOrNull() ?: 1.0
+                    viewModel.addItem(listId, newItemName.value, quantity)
                     newItemName.value = ""
+                    newItemQuantity.value = ""
                 }
             ) {
                 Text("Add Item")
             }
+
         }
     }
 

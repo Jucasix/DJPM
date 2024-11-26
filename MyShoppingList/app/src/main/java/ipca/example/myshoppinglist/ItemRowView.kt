@@ -13,6 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 @Composable
 fun ItemRowView(item: Item) {
@@ -35,9 +41,22 @@ fun ItemRowView(item: Item) {
             onCheckedChange = {
                 isChecked.value = it
                 item.checked = it
+                updateItemCheckedState(item)
             },
             modifier = Modifier.size(24.dp)
         )
+    }
+}
+
+fun updateItemCheckedState(item: Item) {
+    CoroutineScope(Dispatchers.IO).launch {
+        try {
+            val db = Firebase.firestore
+            val docId = item.docId ?: return@launch
+            db.collection("lists").document(docId).collection("items").document(item.docId!!).update("checked", item.checked).await()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
 
