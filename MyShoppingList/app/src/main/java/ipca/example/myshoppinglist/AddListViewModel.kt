@@ -7,8 +7,6 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
-import ipca.example.myshoppinglist.TAG
-import ipca.example.myshoppinglist.ListItems
 
 data class AddListState(
     val name : String = "",
