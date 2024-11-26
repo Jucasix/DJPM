@@ -1,5 +1,6 @@
 package ipca.example.myshoppinglist
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -18,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -72,17 +75,31 @@ fun ListItemsView(
                 )
             }
 
-            Button(
-                modifier = Modifier.padding(16.dp),
-                onClick = {
-                    val quantity = newItemQuantity.value.toDoubleOrNull() ?: 1.0
-                    viewModel.addItem(listId, newItemName.value, quantity)
-                    newItemName.value = ""
-                    newItemQuantity.value = ""
+            Row(modifier = Modifier.fillMaxWidth().padding(16.dp), horizontalArrangement = Arrangement.SpaceEvenly) {
+                Button(
+                    modifier = Modifier.weight(1f).size(48.dp),
+                    onClick = {
+                        val quantity = newItemQuantity.value.toDoubleOrNull() ?: 1.0
+                        viewModel.addItem(listId, newItemName.value, quantity)
+                        newItemName.value = ""
+                        newItemQuantity.value = ""
+                    }
+                ) {
+                    Text("Add Item")
                 }
-            ) {
-                Text("Add Item")
+
+                Button(
+                    modifier = Modifier.weight(1f).size(48.dp),
+                    onClick = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+                        }
+                    }
+                ) {
+                    Icon(painter = painterResource(R.drawable.baseline_home_24), contentDescription = "Home")
+                }
             }
+
 
         }
     }

@@ -42,7 +42,7 @@ class ListItemsViewModel : ViewModel() {
             try {
                 // TODO: Add logic to add item to Firebase under the specified listId
                 addItemToFirebase(listId, itemName, quantity)
-                val updatedItems = _state.value.items + Item(docId = null, name = itemName, qtd = quantity, checked = false)
+                val updatedItems = _state.value.items + Item(docId = null, listId = listId, name = itemName, qtd = quantity, checked = false)
                 _state.update { it.copy(items = updatedItems) }
             } catch (e: Exception) {
                 _state.update { it.copy(error = e.message) }
@@ -70,7 +70,10 @@ class ListItemsViewModel : ViewModel() {
             val result = db.collection("lists").document(listId).collection("items").get().await()
             for (document in result.documents) {
                 val item = document.toObject(Item::class.java)
-                item?.let { items.add(it) }
+                item?.let {
+                    it.docId = document.id // Atribuir o ID do documento ao docId do item
+                    items.add(it)
+                }
             }
         } catch (e: Exception) {
             _state.update { it.copy(error = e.message) }
@@ -81,7 +84,7 @@ class ListItemsViewModel : ViewModel() {
     private suspend fun addItemToFirebase(listId: String, itemName: String, quantity: Double) {
         try {
             val db = Firebase.firestore
-            val newItem = Item(null, itemName, quantity, false)
+            val newItem = Item(null, listId, itemName, quantity, false)
             db.collection("lists")
                 .document(listId)
                 .collection("items")
