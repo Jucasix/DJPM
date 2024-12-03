@@ -9,11 +9,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import ipca.example.myshoppinglist.ui.lists.items.ListItemsView
+import ipca.example.myshoppinglist.ui.lists.AddListView
+import ipca.example.myshoppinglist.ui.lists.ListListsView
+import ipca.example.myshoppinglist.ui.lists.items.ItemEditView
+import ipca.example.myshoppinglist.ui.login.LoginView
 import ipca.example.myshoppinglist.ui.theme.MyShoppingListTheme
 
 const val TAG = "ShoppingList"
@@ -47,11 +54,25 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.AddList.route) {
                             AddListView(navController = navController)
                         }
-                        composable(Screen.ListItems.route) { backStackEntry ->
-                            val listId = backStackEntry.arguments?.getString("listId")
-                            listId?.let {
-                                ListItemsView(listId = it, navController = navController)
-                            }
+                        composable(
+                            route = Screen.ListItems.route,
+                            arguments = listOf(navArgument("listId") {
+                                type = NavType.StringType
+                            })
+                        ) { backStackEntry ->
+                            val listId = backStackEntry.arguments?.getString("listId") ?: return@composable
+                            ListItemsView(listId = listId, navController = navController)
+                        }
+                        composable(
+                            route = Screen.EditItem.route,
+                            arguments = listOf(
+                                navArgument("listId") { type = NavType.StringType },
+                                navArgument("itemId") { type = NavType.StringType }
+                            )
+                        ) { backStackEntry ->
+                            val listId = backStackEntry.arguments?.getString("listId") ?: return@composable
+                            val itemId = backStackEntry.arguments?.getString("itemId") ?: return@composable
+                            ItemEditView(listId = listId, itemId = itemId, navController = navController)
                         }
                     }
                 }
@@ -69,6 +90,7 @@ class MainActivity : ComponentActivity() {
 
 sealed class Screen(val route: String) {
     object ListItems : Screen("list_items/{listId}")
+    object EditItem : Screen("edit_item/{listId}/{itemId}")
     object Login : Screen("login")
     object Home : Screen("home")
     object AddList : Screen("add_list")

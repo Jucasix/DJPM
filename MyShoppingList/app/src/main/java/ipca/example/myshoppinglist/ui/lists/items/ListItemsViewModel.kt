@@ -1,4 +1,4 @@
-package ipca.example.myshoppinglist
+package ipca.example.myshoppinglist.ui.lists.items
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import ipca.example.myshoppinglist.models.Item
 import kotlinx.coroutines.tasks.await
 
 data class ListItemsState(

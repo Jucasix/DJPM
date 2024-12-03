@@ -1,4 +1,4 @@
-package ipca.example.myshoppinglist
+package ipca.example.myshoppinglist.ui.lists.items
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import ipca.example.myshoppinglist.R
+import ipca.example.myshoppinglist.Screen
 
 @Composable
 fun ListItemsView(
@@ -53,7 +55,7 @@ fun ListItemsView(
                 itemsIndexed(
                     items = state.items
                 ) { _, item ->
-                    ItemRowView(item = item)
+                    ItemRowView(item = item, navController = navController)
                 }
             }
 
@@ -79,6 +81,16 @@ fun ListItemsView(
                 Button(
                     modifier = Modifier.weight(1f).size(48.dp),
                     onClick = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+                        }
+                    }
+                ) {
+                    Icon(painter = painterResource(R.drawable.baseline_home_24), contentDescription = "Home")
+                }
+                Button(
+                    modifier = Modifier.weight(1f).size(48.dp),
+                    onClick = {
                         val quantity = newItemQuantity.value.toDoubleOrNull() ?: 1.0
                         viewModel.addItem(listId, newItemName.value, quantity)
                         newItemName.value = ""
@@ -87,20 +99,7 @@ fun ListItemsView(
                 ) {
                     Text("Add Item")
                 }
-
-                Button(
-                    modifier = Modifier.weight(1f).size(48.dp),
-                    onClick = {
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Home.route) { inclusive = true }
-                        }
-                    }
-                ) {
-                    Icon(painter = painterResource(R.drawable.baseline_home_24), contentDescription = "Home")
-                }
             }
-
-
         }
     }
 

@@ -1,4 +1,4 @@
-package ipca.example.myshoppinglist
+package ipca.example.myshoppinglist.ui.lists
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize

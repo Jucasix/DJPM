@@ -1,4 +1,4 @@
-package ipca.example.myshoppinglist
+package ipca.example.myshoppinglist.ui.lists
 
 
 import android.util.Log
@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import ipca.example.myshoppinglist.models.ListItems
+import ipca.example.myshoppinglist.TAG
 
 data class AddListState(
     val name : String = "",

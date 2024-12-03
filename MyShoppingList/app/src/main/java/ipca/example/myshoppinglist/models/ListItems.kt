@@ -1,4 +1,4 @@
-package ipca.example.myshoppinglist
+package ipca.example.myshoppinglist.models
 
 data class ListItems (
 

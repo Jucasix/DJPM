@@ -1,4 +1,4 @@
-package ipca.example.myshoppinglist
+package ipca.example.myshoppinglist.ui.lists
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.firestore
+import ipca.example.myshoppinglist.TAG
+import ipca.example.myshoppinglist.models.ListItems
 
 data class ListListsState(
     val listItemsList : List<ListItems> = arrayListOf(),

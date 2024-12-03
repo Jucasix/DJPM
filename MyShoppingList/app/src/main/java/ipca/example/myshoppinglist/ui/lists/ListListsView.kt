@@ -1,4 +1,4 @@
-package ipca.example.myshoppinglist
+package ipca.example.myshoppinglist.ui.lists
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import ipca.example.myshoppinglist.R
+import ipca.example.myshoppinglist.Screen
 import ipca.example.myshoppinglist.ui.theme.MyShoppingListTheme
 
 @Composable
@@ -52,8 +54,7 @@ fun ListListsView(
             LazyColumn(modifier = modifier.fillMaxSize().weight(1f)) {
                 itemsIndexed(
                     items = state.listItemsList
-                ){  index, item ->
-
+                ) { index, item ->
                     Text(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -61,8 +62,8 @@ fun ListListsView(
                             .clickable {
                                 navController.navigate("list_items/${item.docId}")
                             },
-                        text = item.name ?: "")
-
+                        text = item.name ?: ""
+                    )
                 }
             }
         }

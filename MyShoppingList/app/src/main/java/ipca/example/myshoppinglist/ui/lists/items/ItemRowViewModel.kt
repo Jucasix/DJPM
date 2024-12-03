@@ -1,4 +1,4 @@
-package ipca.example.myshoppinglist
+package ipca.example.myshoppinglist.ui.lists.items
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -7,9 +7,11 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import android.util.Log
+import ipca.example.myshoppinglist.models.Item
 
 class ItemRowViewModel : ViewModel() {
 
+    // Atualizar o estado de "checked" de um item específico
     fun updateItemCheckedState(item: Item) {
         viewModelScope.launch {
             try {
@@ -25,4 +27,3 @@ class ItemRowViewModel : ViewModel() {
         }
     }
 }
-
