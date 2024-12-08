@@ -19,6 +19,7 @@ import com.google.firebase.ktx.Firebase
 import ipca.example.myshoppinglist.ui.lists.items.ListItemsView
 import ipca.example.myshoppinglist.ui.lists.AddListView
 import ipca.example.myshoppinglist.ui.lists.ListListsView
+import ipca.example.myshoppinglist.ui.lists.EditListView
 import ipca.example.myshoppinglist.ui.lists.items.ItemEditView
 import ipca.example.myshoppinglist.ui.profile.ProfileView
 import ipca.example.myshoppinglist.ui.login.LoginView
@@ -39,6 +40,7 @@ class MainActivity : ComponentActivity() {
                         navController = navController,
                         startDestination = Screen.Login.route
                     ) {
+                        // Login View
                         composable(Screen.Login.route) {
                             LoginView(
                                 modifier = Modifier.padding(innerPadding),
@@ -47,23 +49,27 @@ class MainActivity : ComponentActivity() {
                                 }
                             )
                         }
+
+                        // Home View
                         composable(Screen.Home.route) {
-                            ListListsView(
-                                navController = navController
-                            )
+                            ListListsView(navController = navController)
                         }
+
+                        // Add List View
                         composable(Screen.AddList.route) {
                             AddListView(navController = navController)
                         }
+
+                        // List Items View
                         composable(
                             route = Screen.ListItems.route,
-                            arguments = listOf(navArgument("listId") {
-                                type = NavType.StringType
-                            })
+                            arguments = listOf(navArgument("listId") { type = NavType.StringType })
                         ) { backStackEntry ->
                             val listId = backStackEntry.arguments?.getString("listId") ?: return@composable
                             ListItemsView(listId = listId, navController = navController)
                         }
+
+                        // Edit Item View
                         composable(
                             route = Screen.EditItem.route,
                             arguments = listOf(
@@ -75,11 +81,24 @@ class MainActivity : ComponentActivity() {
                             val itemId = backStackEntry.arguments?.getString("itemId") ?: return@composable
                             ItemEditView(listId = listId, itemId = itemId, navController = navController)
                         }
+
+                        // Profile View
                         composable(Screen.Profile.route) {
                             ProfileView(navController = navController)
                         }
+
+                        // Edit List View
+                        composable(
+                            route = Screen.EditList.route,
+                            arguments = listOf(navArgument("listId") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val listId = backStackEntry.arguments?.getString("listId") ?: return@composable
+                            EditListView(listId = listId, navController = navController)
+                        }
                     }
                 }
+
+                // Navigate to Home if user is logged in
                 LaunchedEffect(Unit) {
                     val auth = Firebase.auth
                     val currentUser = auth.currentUser
@@ -92,11 +111,19 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+// Sealed Class for Screen Definitions
 sealed class Screen(val route: String) {
-    object ListItems : Screen("list_items/{listId}")
-    object EditItem : Screen("edit_item/{listId}/{itemId}")
     object Login : Screen("login")
     object Home : Screen("home")
     object AddList : Screen("add_list")
+    object ListItems : Screen("list_items/{listId}") {
+        fun createRoute(listId: String) = "list_items/$listId"
+    }
+    object EditItem : Screen("edit_item/{listId}/{itemId}") {
+        fun createRoute(listId: String, itemId: String) = "edit_item/$listId/$itemId"
+    }
     object Profile : Screen("profile")
+    object EditList : Screen("edit_list/{listId}") {
+        fun createRoute(listId: String) = "edit_list/$listId"
+    }
 }

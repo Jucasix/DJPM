@@ -1,11 +1,14 @@
 package ipca.example.myshoppinglist.ui.lists
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -27,6 +30,8 @@ import ipca.example.myshoppinglist.R
 import ipca.example.myshoppinglist.Screen
 import ipca.example.myshoppinglist.ui.theme.MyShoppingListTheme
 
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ListListsView(
     modifier: Modifier = Modifier,
@@ -75,14 +80,20 @@ fun ListListsView(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
-                            .clickable {
-                                navController.navigate("list_items/${item.docId}")
-                            },
+                            .combinedClickable(
+                                onClick = {
+                                    navController.navigate("list_items/${item.docId}")
+                                },
+                                onLongClick = {
+                                    navController.navigate("edit_list/${item.docId}")
+                                }
+                            ),
                         text = item.name ?: ""
                     )
                 }
             }
         }
+
 
         Button(
             modifier = Modifier
@@ -108,10 +119,10 @@ fun ListListsView(
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun ListListViewPreview() {
-    MyShoppingListTheme {
-        ListListsView()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun ListListViewPreview() {
+//    MyShoppingListTheme {
+//        ListListsView()
+//    }
+//}
