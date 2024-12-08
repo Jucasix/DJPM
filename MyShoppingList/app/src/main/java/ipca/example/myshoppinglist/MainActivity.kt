@@ -20,6 +20,7 @@ import ipca.example.myshoppinglist.ui.lists.items.ListItemsView
 import ipca.example.myshoppinglist.ui.lists.AddListView
 import ipca.example.myshoppinglist.ui.lists.ListListsView
 import ipca.example.myshoppinglist.ui.lists.items.ItemEditView
+import ipca.example.myshoppinglist.ui.profile.ProfileView
 import ipca.example.myshoppinglist.ui.login.LoginView
 import ipca.example.myshoppinglist.ui.theme.MyShoppingListTheme
 
@@ -74,6 +75,9 @@ class MainActivity : ComponentActivity() {
                             val itemId = backStackEntry.arguments?.getString("itemId") ?: return@composable
                             ItemEditView(listId = listId, itemId = itemId, navController = navController)
                         }
+                        composable(Screen.Profile.route) {
+                            ProfileView(navController = navController)
+                        }
                     }
                 }
                 LaunchedEffect(Unit) {
@@ -94,4 +98,5 @@ sealed class Screen(val route: String) {
     object Login : Screen("login")
     object Home : Screen("home")
     object AddList : Screen("add_list")
+    object Profile : Screen("profile")
 }

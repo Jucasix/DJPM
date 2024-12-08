@@ -2,15 +2,12 @@ package ipca.example.myshoppinglist.ui.lists
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,22 +31,41 @@ import ipca.example.myshoppinglist.ui.theme.MyShoppingListTheme
 fun ListListsView(
     modifier: Modifier = Modifier,
     navController: NavController = rememberNavController()
-){
-
-    val viewModel : ListListsViewModel = viewModel()
+) {
+    val viewModel: ListListsViewModel = viewModel()
     val state = viewModel.state.value
 
-    Box(modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.BottomEnd) {
-
-        Column(modifier = modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = "My Shopping Lists",
-                fontSize = 24.sp,
-                color = Color(0xFF495D92),
-                modifier = Modifier.padding(16.dp)
-            )
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.BottomEnd
+    ) {
+        Column(
+            modifier = modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "My Shopping Lists",
+                    fontSize = 24.sp,
+                    color = Color(0xFF495D92)
+                )
+                IconButton(onClick = {
+                    navController.navigate(Screen.Profile.route)
+                }) {
+                    Icon(
+                        painter = painterResource(R.drawable.baseline_account_circle_24),
+                        contentDescription = "Profile",
+                        tint = Color(0xFF495D92),
+                        modifier = Modifier.size(32.dp)
+                    )
+                }
+            }
 
             LazyColumn(modifier = modifier.fillMaxSize().weight(1f)) {
                 itemsIndexed(
@@ -74,7 +90,8 @@ fun ListListsView(
                 .size(64.dp),
             onClick = {
                 navController.navigate(Screen.AddList.route)
-            }) {
+            }
+        ) {
             Image(
                 modifier = Modifier
                     .scale(2.0f)
@@ -86,15 +103,14 @@ fun ListListsView(
         }
     }
 
-    LaunchedEffect (key1 = true){
+    LaunchedEffect(key1 = true) {
         viewModel.getLists()
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
-fun ListListViewPreview(){
+fun ListListViewPreview() {
     MyShoppingListTheme {
         ListListsView()
     }
