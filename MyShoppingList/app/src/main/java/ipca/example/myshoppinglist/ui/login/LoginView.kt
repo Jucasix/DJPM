@@ -1,11 +1,6 @@
 package ipca.example.myshoppinglist.ui.login
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -45,22 +40,14 @@ fun LoginView(
             )
             TextField(
                 value = state.email,
-                onValueChange = {
-                    viewModel.onEmailChange(it)
-                },
-                placeholder = {
-                    Text("Email")
-                }
+                onValueChange = { viewModel.onEmailChange(it) },
+                placeholder = { Text("Email") }
             )
             Spacer(modifier = Modifier.height(16.dp))
             TextField(
                 value = state.password,
-                onValueChange = {
-                    viewModel.onPasswordChange(it)
-                },
-                placeholder = {
-                    Text("Password")
-                }
+                onValueChange = { viewModel.onPasswordChange(it) },
+                placeholder = { Text("Password") }
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
@@ -69,24 +56,28 @@ fun LoginView(
                         onLoginSuccess()
                     }
                 },
-                content = {
-                    Text("Login")
-                }
+                content = { Text("Login") }
             )
             Spacer(modifier = Modifier.height(16.dp))
             Button(
-                onClick = {
-                    navController.navigate("register")
-                }
-            ) {
-                Text("Register")
-            }
-
+                onClick = { navController.navigate("register") },
+                content = { Text("Register") }
+            )
             Spacer(modifier = Modifier.height(16.dp))
-            if (state.error != null)
-                Text(state.error ?: "")
-            if (state.isLoading)
+            Button(
+                onClick = { viewModel.onResetPasswordClick() },
+                content = { Text("Reset Password") }
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            if (state.error != null) {
+                Text(state.error, color = androidx.compose.ui.graphics.Color.Red)
+            }
+            if (state.successMessage != null) {
+                Text(state.successMessage, color = androidx.compose.ui.graphics.Color.Green)
+            }
+            if (state.isLoading) {
                 CircularProgressIndicator()
+            }
         }
     }
 }

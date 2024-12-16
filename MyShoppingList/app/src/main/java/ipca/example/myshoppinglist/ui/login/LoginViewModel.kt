@@ -3,22 +3,28 @@ package ipca.example.myshoppinglist.ui.login
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import ipca.example.myshoppinglist.TAG
+import ipca.example.myshoppinglist.repositories.UsersRepository
+import kotlinx.coroutines.launch
 
 data class LoginState(
     val email: String = "",
     val password: String = "",
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val successMessage: String? = null
 )
 
 class LoginViewModel : ViewModel() {
 
     var state = mutableStateOf(LoginState())
         private set
+
+    private val usersRepository = UsersRepository()
 
     fun onEmailChange(email: String) {
         state.value = state.value.copy(email = email)
@@ -28,7 +34,7 @@ class LoginViewModel : ViewModel() {
         state.value = state.value.copy(password = password)
     }
 
-    fun onLoginClick( onLoginSuccess: ()->Unit) {
+    fun onLoginClick(onLoginSuccess: () -> Unit) {
         state.value = state.value.copy(isLoading = true)
 
         val auth: FirebaseAuth = Firebase.auth
@@ -37,20 +43,31 @@ class LoginViewModel : ViewModel() {
             .addOnCompleteListener { task ->
                 state.value = state.value.copy(isLoading = false)
                 if (task.isSuccessful) {
-                    // Sign in success, update UI with the signed-in user's information
                     Log.d(TAG, "signInWithEmail:success")
-                    val user = auth.currentUser
                     onLoginSuccess()
                 } else {
-                    // If sign in fails, display a message to the user.
                     Log.w(TAG, "signInWithEmail:failure", task.exception)
-                    state.value = state.value.copy(error = task.exception?.message?: "Unknown error")
+                    state.value = state.value.copy(error = task.exception?.message ?: "Unknown error")
                 }
             }
-
-
-
-
     }
 
+    fun onResetPasswordClick() {
+        val email = state.value.email
+        if (email.isNotBlank()) {
+            viewModelScope.launch {
+                val result = usersRepository.resetPassword(email)
+                result.fold(
+                    onSuccess = {
+                        state.value = state.value.copy(successMessage = "Password reset email sent to $email")
+                    },
+                    onFailure = { e ->
+                        state.value = state.value.copy(error = e.message ?: "An error occurred")
+                    }
+                )
+            }
+        } else {
+            state.value = state.value.copy(error = "Please enter your email address")
+        }
+    }
 }
