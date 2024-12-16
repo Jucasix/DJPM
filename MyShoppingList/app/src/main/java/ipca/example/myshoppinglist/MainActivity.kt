@@ -23,6 +23,7 @@ import ipca.example.myshoppinglist.ui.lists.EditListView
 import ipca.example.myshoppinglist.ui.lists.items.ItemEditView
 import ipca.example.myshoppinglist.ui.profile.ProfileView
 import ipca.example.myshoppinglist.ui.login.LoginView
+import ipca.example.myshoppinglist.ui.login.RegisterView
 import ipca.example.myshoppinglist.ui.theme.MyShoppingListTheme
 
 const val TAG = "ShoppingList"
@@ -44,10 +45,16 @@ class MainActivity : ComponentActivity() {
                         composable(Screen.Login.route) {
                             LoginView(
                                 modifier = Modifier.padding(innerPadding),
+                                navController = navController,
                                 onLoginSuccess = {
                                     navController.navigate(Screen.Home.route)
                                 }
                             )
+                        }
+
+                        // Register View
+                        composable(Screen.Register.route) {
+                            RegisterView(navController = navController)
                         }
 
                         // Home View
@@ -114,6 +121,7 @@ class MainActivity : ComponentActivity() {
 // Sealed Class for Screen Definitions
 sealed class Screen(val route: String) {
     object Login : Screen("login")
+    object Register : Screen("register")
     object Home : Screen("home")
     object AddList : Screen("add_list")
     object ListItems : Screen("list_items/{listId}") {

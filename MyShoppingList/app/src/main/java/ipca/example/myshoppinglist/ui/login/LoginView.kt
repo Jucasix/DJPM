@@ -17,27 +17,34 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import ipca.example.myshoppinglist.Screen
 import ipca.example.myshoppinglist.ui.theme.MyShoppingListTheme
 
 @Composable
-fun LoginView(modifier: Modifier = Modifier,
-              onLoginSuccess : ()->Unit = {}) {
-
-    val viewModel : LoginViewModel = viewModel()
+fun LoginView(
+    modifier: Modifier = Modifier,
+    navController: NavController = rememberNavController(),
+    onLoginSuccess: () -> Unit = {}
+) {
+    val viewModel: LoginViewModel = viewModel()
     val state = viewModel.state.value
 
-    Box(modifier = modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center)
-    {
-        Column (
+    Box(
+        modifier = modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
             horizontalAlignment = Alignment.CenterHorizontally
-        ){
+        ) {
             Text(
                 text = "My Shopping Lists",
                 fontSize = 24.sp,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
-            TextField(value = state.email,
+            TextField(
+                value = state.email,
                 onValueChange = {
                     viewModel.onEmailChange(it)
                 },
@@ -46,7 +53,8 @@ fun LoginView(modifier: Modifier = Modifier,
                 }
             )
             Spacer(modifier = Modifier.height(16.dp))
-            TextField(value = state.password,
+            TextField(
+                value = state.password,
                 onValueChange = {
                     viewModel.onPasswordChange(it)
                 },
@@ -60,12 +68,20 @@ fun LoginView(modifier: Modifier = Modifier,
                     viewModel.onLoginClick {
                         onLoginSuccess()
                     }
-
                 },
                 content = {
                     Text("Login")
                 }
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    navController.navigate("register")
+                }
+            ) {
+                Text("Register")
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
             if (state.error != null)
                 Text(state.error ?: "")
@@ -74,7 +90,6 @@ fun LoginView(modifier: Modifier = Modifier,
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

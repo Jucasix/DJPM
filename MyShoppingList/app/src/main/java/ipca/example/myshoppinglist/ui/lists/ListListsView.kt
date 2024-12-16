@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -41,56 +42,65 @@ fun ListListsView(
         modifier = modifier.fillMaxSize(),
         contentAlignment = Alignment.BottomEnd
     ) {
-        Column(
-            modifier = modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "My Shopping Lists",
-                    fontSize = 24.sp,
-                    color = Color(0xFF495D92)
-                )
-                IconButton(onClick = {
-                    navController.navigate(Screen.Profile.route)
-                }) {
-                    Icon(
-                        painter = painterResource(R.drawable.baseline_account_circle_24),
-                        contentDescription = "Profile",
-                        tint = Color(0xFF495D92),
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
+        if (state.isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
             }
-
-            LazyColumn(modifier = modifier.fillMaxSize().weight(1f)) {
-                itemsIndexed(
-                    items = state.listItemsList
-                ) { index, item ->
+        } else if (state.error != null) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(text = state.error, color = Color.Red)
+            }
+        } else {
+            Column(
+                modifier = modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp)
-                            .combinedClickable(
-                                onClick = {
-                                    navController.navigate("list_items/${item.docId}")
-                                },
-                                onLongClick = {
-                                    navController.navigate("edit_list/${item.docId}")
-                                }
-                            ),
-                        text = item.name ?: ""
+                        text = "My Shopping Lists",
+                        fontSize = 24.sp,
+                        color = Color(0xFF495D92)
                     )
+                    IconButton(onClick = {
+                        navController.navigate(Screen.Profile.route)
+                    }) {
+                        Icon(
+                            painter = painterResource(R.drawable.baseline_account_circle_24),
+                            contentDescription = "Profile",
+                            tint = Color(0xFF495D92),
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                }
+
+                LazyColumn(modifier = modifier.fillMaxSize().weight(1f)) {
+                    itemsIndexed(
+                        items = state.listItemsList
+                    ) { index, item ->
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .combinedClickable(
+                                    onClick = {
+                                        navController.navigate("list_items/${item.docId}")
+                                    },
+                                    onLongClick = {
+                                        navController.navigate("edit_list/${item.docId}")
+                                    }
+                                ),
+                            text = item.name ?: ""
+                        )
+                    }
                 }
             }
         }
-
 
         Button(
             modifier = Modifier
@@ -115,11 +125,3 @@ fun ListListsView(
         viewModel.getLists()
     }
 }
-
-//@Preview(showBackground = true)
-//@Composable
-//fun ListListViewPreview() {
-//    MyShoppingListTheme {
-//        ListListsView()
-//    }
-//}
