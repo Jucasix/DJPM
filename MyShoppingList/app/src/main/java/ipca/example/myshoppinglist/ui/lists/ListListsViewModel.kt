@@ -33,7 +33,7 @@ class ListListsViewModel : ViewModel() {
         // Verificar se o userId não é nulo
         if (userId != null) {
             db.collection("lists")
-                .whereArrayContains("owners", userId) // Usar whereArrayContains corretamente
+                .whereArrayContains("owners", userId)
                 .get()
                 .addOnSuccessListener { documents ->
                     val listItemsList = arrayListOf<ListItems>()

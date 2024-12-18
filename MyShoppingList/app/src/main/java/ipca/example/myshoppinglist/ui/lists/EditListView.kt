@@ -12,6 +12,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import ipca.example.myshoppinglist.R
+import ipca.example.myshoppinglist.Screen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,6 +96,21 @@ fun EditListView(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Delete")
+            }
+
+            // Botão para partilhar a lista
+            Button(
+                onClick = {
+                    navController.navigate(Screen.ShareList.createRoute(listId))
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.baseline_share_24),
+                    contentDescription = "Share List"
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Share")
             }
         }
     }

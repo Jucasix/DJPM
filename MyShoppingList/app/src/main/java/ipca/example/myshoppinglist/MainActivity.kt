@@ -20,6 +20,7 @@ import ipca.example.myshoppinglist.ui.lists.items.ListItemsView
 import ipca.example.myshoppinglist.ui.lists.AddListView
 import ipca.example.myshoppinglist.ui.lists.ListListsView
 import ipca.example.myshoppinglist.ui.lists.EditListView
+import ipca.example.myshoppinglist.ui.lists.ShareListView
 import ipca.example.myshoppinglist.ui.lists.items.ItemEditView
 import ipca.example.myshoppinglist.ui.profile.ProfileView
 import ipca.example.myshoppinglist.ui.login.LoginView
@@ -47,7 +48,10 @@ class MainActivity : ComponentActivity() {
                                 modifier = Modifier.padding(innerPadding),
                                 navController = navController,
                                 onLoginSuccess = {
-                                    navController.navigate(Screen.Home.route)
+                                    navController.navigate(Screen.Home.route){
+                                        launchSingleTop = true
+                                        popUpTo(0) { inclusive = true}
+                                    }
                                 }
                             )
                         }
@@ -102,6 +106,15 @@ class MainActivity : ComponentActivity() {
                             val listId = backStackEntry.arguments?.getString("listId") ?: return@composable
                             EditListView(listId = listId, navController = navController)
                         }
+
+                        // Share List View
+                        composable(
+                            route = Screen.ShareList.route,
+                            arguments = listOf(navArgument("listId") { type = NavType.StringType })
+                        ) { backStackEntry ->
+                            val listId = backStackEntry.arguments?.getString("listId") ?: return@composable
+                            ShareListView(listId = listId, navController = navController)
+                        }
                     }
                 }
 
@@ -133,5 +146,8 @@ sealed class Screen(val route: String) {
     object Profile : Screen("profile")
     object EditList : Screen("edit_list/{listId}") {
         fun createRoute(listId: String) = "edit_list/$listId"
+    }
+    object ShareList : Screen("share_list/{listId}") {
+        fun createRoute(listId: String) = "share_list/$listId"
     }
 }

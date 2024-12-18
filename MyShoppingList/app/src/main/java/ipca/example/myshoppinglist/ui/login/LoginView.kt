@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import ipca.example.myshoppinglist.Screen
 import ipca.example.myshoppinglist.ui.theme.MyShoppingListTheme
 
 @Composable
