@@ -123,7 +123,10 @@ class MainActivity : ComponentActivity() {
                     val auth = Firebase.auth
                     val currentUser = auth.currentUser
                     if (currentUser != null) {
-                        navController.navigate(Screen.Home.route)
+                        navController.navigate(Screen.Home.route) {
+                            launchSingleTop = true
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
                 }
             }
